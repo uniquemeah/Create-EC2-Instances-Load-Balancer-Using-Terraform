@@ -1,0 +1,33 @@
+---
+- name: Install Apache on EC2 instances
+  hosts: ec2
+  become: true
+  # Environment:
+  #   AWS_ACCESS_KEY_ID=
+  #   AWS_SECRET_ACCESS_KEY=
+
+  tasks:
+  - name: update and upgrade the servers
+    apt:
+      update_cache: yes
+      upgrade: yes
+  
+  - name: Install Apache
+    apt:
+      name: apache2
+      state: present
+  
+  - name: Copy index.html
+    template:
+      src: templates/index.html
+      dest: /var/www/html/index.html
+
+  - name: Set timezone to Africa/Lagos
+    command: timedatectl set-timezone Africa/Lagos
+    become: true
+
+  - name: restart apache2
+    tags: restart
+    service:
+      name: apache2
+      state: restarted
